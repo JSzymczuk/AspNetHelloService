@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Product App</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+</head>
+<body>
+
+    <div>
+        <h2>Get / Put / Delete by ID</h2>
+        <input type="text" id="entryId" placeholder="EntryId" />
+    </div>
+
+    <h2>Post</h2>
+
+    <form id="post-form" action="@Url.Action("Post", "Entries")" method="post" enctype="multipart/form-data">
+        <input name="Value" type="number" placeholder="Value">
+        <input name="Name" type="text" placeholder="Name">
+        <input name="FileContent" type="file">
+    </form>
+
+    <div>
+        <h2>via jQuery</h2>
+        <button onclick="getEntry();">Get</button>
+        <button onclick="getImage();">GetImage</button>
+        <button onclick="deleteEntry();">Delete</button>
+        <button onclick="postEntry();">Post</button>
+    </div>
+
+    <div>
+        <h2>via controller</h2>
+        <button onclick="cGetEntry();">Get</button>
+        <button onclick="cGetImage();">GetImage</button>
+        <button onclick="cDeleteEntry();">Delete</button>
+        <button onclick="cPostEntry();">Post</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        var uri = 'http://localhost:62263/api/Service/';
+
+        function getEntry() {
+            var id = $('#entryId').val();
+            $.ajax({
+                url: uri + id,
+                type: "GET",
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                }
+            });
+            $('#output').html("");
+        }
+
+        function getImage() {
+            var id = $('#entryId').val();
+            if (id == "") {
+                $('#output').html("Id can't be empty.");
+            }
+            else {
+                $.ajax({
+                    url: uri + id,
+                    type: "PUT",
+                    success: function (data) {
+                        $('#output').html('<a href="' + data
+                            + '" class="full-size-link"><img alt="putResult" src="'
+                            + data + '" width="100" /></a>');
+                    },
+                    error: function (req, options, err) {
+                        $('#output').html('Error: ' + err);
+                    }
+                });
+                $('#output').html("");
+            }
+        }
+
+        function deleteEntry() {
+            var id = $('#entryId').val();
+            if (id == "") {
+                $('#output').html("Id can't be empty.");
+            }
+            else {
+                $.ajax({
+                    url: uri + id,
+                    type: "DELETE",
+                    success: function (data) {
+                        $('#output').html(data);
+                    },
+                    error: function (req, options, err) {
+                        $('#output').html('Error: ' + err);
+                    }
+                });
+                $('#output').html("");
+            }
+        }
+
+        function postEntry() {
+            var formData = new FormData(document.getElementById('post-form'));
+            $.ajax({
+                url: uri,
+                type: "POST",
+                data: formData,
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            $('#output').html("");
+        }
+
+        $('#post-form').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: uri,
+                type: "POST",
+                data: formData,
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#product').html('Error: ' + err);
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        });
+
+        function cGetEntry() {
+            var id = $('#entryId').val();
+            $.ajax({
+                url: "@Url.Action("Get", "Entries")" + "/" + id,
+                type: "GET",
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                }
+            });
+            $('#output').html("");
+        }
+
+        function cGetImage() {
+            var id = $('#entryId').val();
+            $.ajax({
+                url: "@Url.Action("Put", "Entries")" + "/" + id,
+                type: "PUT",
+                success: function (data) {
+                    $('#output').html('<a href="' + data
+                        + '" class="full-size-link"><img alt="putResult" src="'
+                        + data + '" width="100" /></a>');
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                }
+            });
+            $('#output').html("");
+        }
+
+        function cDeleteEntry() {
+            var id = $('#entryId').val();
+            $.ajax({
+                url: "@Url.Action("Delete", "Entries")" + "/" + id,
+                type: "DELETE",
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                }
+            });
+            $('#output').html("");
+        }
+
+        function cPostEntry() {
+            var formData = new FormData(document.getElementById('post-form'));
+            $.ajax({
+                url: "@Url.Action("Post", "Entries")",
+                type: "POST",
+                data: formData,
+                success: function (data) {
+                    $('#output').html(data);
+                },
+                error: function (req, options, err) {
+                    $('#output').html('Error: ' + err);
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            $('#output').html("");
+        }
+
+        $(document).on('click', 'a.full-size-link', function (e) {
+            e.preventDefault();
+            var img = "<img src='" + $(this).attr("href") + "' />"
+            var x = window.open();
+            x.document.open();
+            x.document.write(img);
+            x.document.close();
+        });
+
+    </script>
+</body>
+</html>
